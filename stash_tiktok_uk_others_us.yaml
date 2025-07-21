@@ -1,0 +1,51 @@
+
+# Stash 分流配置文件：TikTok → 英国，其余 → 美国
+# 作者：ChatGPT 为 Simon 定制
+
+port: 7890
+socks-port: 7891
+allow-lan: true
+mode: rule
+log-level: info
+external-controller: 127.0.0.1:9090
+dns:
+  enable: true
+  listen: 0.0.0.0:53
+  default-nameserver:
+    - 1.1.1.1
+    - 8.8.8.8
+  nameserver:
+    - https://dns.google/dns-query
+    - https://cloudflare-dns.com/dns-query
+
+proxies:
+  - name: "英国01"
+    type: trojan
+    server: uk.example.com
+    port: 443
+    password: yourpassword
+    sni: uk.example.com
+    skip-cert-verify: true
+  - name: "美国01"
+    type: trojan
+    server: us.example.com
+    port: 443
+    password: yourpassword
+    sni: us.example.com
+    skip-cert-verify: true
+
+proxy-groups:
+  - name: "TikTok"
+    type: select
+    proxies:
+      - "英国01"
+  - name: "Others"
+    type: select
+    proxies:
+      - "美国01"
+
+rules:
+  - DOMAIN-SUFFIX,tiktok.com,TikTok
+  - DOMAIN-KEYWORD,tiktok,TikTok
+  - PROCESS-NAME,com.zhiliaoapp.musically,TikTok
+  - MATCH,Others
