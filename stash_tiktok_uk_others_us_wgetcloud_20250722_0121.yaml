@@ -1,0 +1,54 @@
+
+# Stash 分流规则：TikTok → 英国01，其它 → 美国01
+# 生成时间：2025-07-22 01:21
+# 作者：ChatGPT × Simon 协作优化
+port: 7890
+socks-port: 7891
+allow-lan: true
+mode: rule
+log-level: info
+external-controller: 127.0.0.1:9090
+dns:
+  enable: true
+  listen: 0.0.0.0:53
+  nameserver:
+    - 8.8.8.8
+    - 1.1.1.1
+  enhanced-mode: fake-ip
+  fake-ip-filter:
+    - '*.lan'
+    - 'localhost'
+
+proxies:
+  - name: 英国01
+    type: trojan
+    server: 43.248.97.68
+    port: 443
+    password: your_password_here
+    sni: uk.example.com
+    skip-cert-verify: true
+
+  - name: 美国01
+    type: trojan
+    server: 43.248.97.68
+    port: 443
+    password: your_password_here
+    sni: us.example.com
+    skip-cert-verify: true
+
+proxy-groups:
+  - name: TikTok
+    type: select
+    proxies:
+      - 英国01
+
+  - name: Others
+    type: select
+    proxies:
+      - 美国01
+
+rules:
+  - DOMAIN-SUFFIX,tiktok.com,TikTok
+  - DOMAIN-KEYWORD,tiktok,TikTok
+  - PROCESS-NAME,com.zhiliaoapp.musically,TikTok
+  - MATCH,Others
